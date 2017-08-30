@@ -62,27 +62,11 @@ public class main_activity extends Activity {
      * Called when the activity loses focus.
      */
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
         if (Nfc_adapter != null) {
-            try {
-                    // Disable foreground dispatch:
-                    Nfc_adapter.disableForegroundDispatch(this);
-                } catch (NullPointerException e) {
-                    // Drop NullPointerException that is sometimes thrown
-                    // when NFC service crashed
-                }
-            }
-    }
-
-    /**
-     * Called when activity receives a new intent.
-     */
-
-    private void onNewIntent(Intent data, boolean foregroundDispatch) {
-        this.setIntent(data);
-        // Resolve the intent that re-invoked us:
-        resolveIntent(data);
+            Nfc_adapter.disableForegroundDispatch(this);
+        }
     }
 
     private void resolveIntent(Intent data) {
@@ -125,7 +109,7 @@ public class main_activity extends Activity {
                 tag0 = reader0.getTag();
 
                 reader0.close();
-                tag_info.setText(tag0.getId().toString());
+                tag_info.setText(printUid(tag0.getId()));
                 //tag_info.setText(getTagInfo());
 
             } catch (IOException e) {
@@ -133,6 +117,20 @@ public class main_activity extends Activity {
             }
         }
 
+    }
+    @Override
+    public void onNewIntent(Intent intent) {
+        setIntent(intent);
+        resolveIntent(intent);
+    }
+
+    private String printUid(byte[] uid){
+
+        StringBuilder res = new StringBuilder();
+        res.append("UID: ");
+        for(int i = 0; i < uid.length; i++)
+            res.append( String.format("%02x",uid[i]));
+        return res.toString();
     }
 
 }
