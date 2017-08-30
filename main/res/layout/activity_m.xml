@@ -12,11 +12,10 @@
 
     <!-- Login progress -->
     <TextView
-        android:layout_width="329dp"
-        android:layout_height="169dp"
-        android:text="waiting for tag..."
-        android:id="@+id/tag_info"
-        android:layout_gravity="center_horizontal" />
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:text="UID: waiting for tag..."
+        android:id="@+id/uid_info" />
 
     <ProgressBar
         android:id="@+id/login_progress"
@@ -25,6 +24,24 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:visibility="gone" />
+
+    <TextView
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:text="ATQA:"
+        android:id="@+id/atqa_info" />
+
+    <TextView
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:text="SAK:"
+        android:id="@+id/sak_info" />
+
+    <TextView
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:text="number of records:"
+        android:id="@+id/nbRecord_info" />
 
     <Button
         android:layout_width="wrap_content"
