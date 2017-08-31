@@ -9,6 +9,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NfcA;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -27,6 +28,8 @@ public class main_activity extends Activity {
     NdefMessage ndef_file;
     Button scan_tag_button;
     PendingIntent mPendingIntent;
+    Parcelable[] rawMsgs;
+    NdefMessage[] msgs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +92,8 @@ public class main_activity extends Activity {
                 || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
             Log.d("NFCExplorer_debug: ","===========getTagInfo===========");
             // The reference to the tag that invoked us is passed as a parameter (intent extra EXTRA_TAG)
-            ndef_file = data.getParcelableExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
             tag0 = data.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            rawMsgs = data.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
             getTagInfo();
         }
     }
@@ -116,12 +119,18 @@ public class main_activity extends Activity {
                 tag0 = reader0.getTag();
 
                 reader0.close();
-
                 uid_info.setText("UID: " + printByteArray(tag0.getId()));
                 atqa_info.setText("ATQA: " +  printByteArray(reader0.getAtqa()));
                 sak_info.setText("SAK :" + String.format("%02x",reader0.getSak()));
-                if(ndef_file != null)
-                    nbRecord_info.setText("number of records: " + String.format("%02x",ndef_file.getRecords().length));
+                if (rawMsgs != null){
+                    msgs = new NdefMessage[rawMsgs.length];
+                    for (int i = 0; i < rawMsgs.length; i++) {
+                        msgs[i] = (NdefMessage) rawMsgs[i];
+                    }
+                    nbRecord_info.setText("number of records: " + String.format("%d",msgs[0].getRecords().length));
+                }
+
+
 
             } catch (IOException e) {
                 e.printStackTrace();
