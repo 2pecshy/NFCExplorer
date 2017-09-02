@@ -12,9 +12,13 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class main_activity extends Activity {
 
@@ -30,19 +34,31 @@ public class main_activity extends Activity {
     PendingIntent mPendingIntent;
     Parcelable[] rawMsgs;
     NdefMessage[] msgs;
+    ListView tag_info_view;
+    ArrayAdapter<String> content_tag_info_view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_m);
+
         scan_tag_button = (Button) findViewById(R.id.button_scan_tag);
         scan_tag_button.setOnClickListener(scan_tag_buttonListener);
         uid_info = (TextView) findViewById(R.id.uid_info);
         atqa_info = (TextView) findViewById(R.id.atqa_info);
         sak_info = (TextView) findViewById(R.id.sak_info);
         nbRecord_info = (TextView) findViewById(R.id.nbRecord_info);
+        tag_info_view = (ListView) findViewById(R.id.list_info_View);
+
+        content_tag_info_view = new ArrayAdapter<String>();
+
+        content_tag_info_view.add("UID: waiting for tag...");
+        content_tag_info_view.add("ATQA:");
+        content_tag_info_view.add("SAK:");
+        content_tag_info_view.add("number of records:");
 
         resolveIntent(getIntent());
+        tag_info_view.setAdapter(content_tag_info_view);
 
         Nfc_adapter = NfcAdapter.getDefaultAdapter(this);
         if (Nfc_adapter == null) {
