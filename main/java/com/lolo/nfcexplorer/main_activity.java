@@ -24,16 +24,17 @@ public class main_activity extends Activity {
 
     NfcA reader0;
     Tag tag0;
-    TextView uid_info;
-    TextView atqa_info;
-    TextView sak_info;
-    TextView nbRecord_info;
+    byte[] uid_info;
+    byte[] atqa_info;
+    short sak_info;
+    int nbRecord_info;
     NfcAdapter Nfc_adapter;
     NdefMessage ndef_file;
     Button scan_tag_button;
     PendingIntent mPendingIntent;
     Parcelable[] rawMsgs;
     NdefMessage[] msgs;
+    String[] tmp;
     ListView tag_info_view;
     ArrayAdapter<String> content_tag_info_view;
 
@@ -44,13 +45,9 @@ public class main_activity extends Activity {
 
         scan_tag_button = (Button) findViewById(R.id.button_scan_tag);
         scan_tag_button.setOnClickListener(scan_tag_buttonListener);
-        uid_info = (TextView) findViewById(R.id.uid_info);
-        atqa_info = (TextView) findViewById(R.id.atqa_info);
-        sak_info = (TextView) findViewById(R.id.sak_info);
-        nbRecord_info = (TextView) findViewById(R.id.nbRecord_info);
         tag_info_view = (ListView) findViewById(R.id.list_info_View);
 
-        content_tag_info_view = new ArrayAdapter<String>();
+        content_tag_info_view = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item);
 
         content_tag_info_view.add("UID: waiting for tag...");
         content_tag_info_view.add("ATQA:");
@@ -116,15 +113,19 @@ public class main_activity extends Activity {
 
     private View.OnClickListener scan_tag_buttonListener = new View.OnClickListener() {
         public void onClick(View v) {
+            content_tag_info_view.clear();
             getTagInfo();
 
         }
     };
 
     private void getTagInfo(){
-
+        content_tag_info_view.clear();
         if(tag0 == null){
-            uid_info.setText("No Tag...");
+            content_tag_info_view.add("UID: waiting for tag...");
+            content_tag_info_view.add("ATQA:");
+            content_tag_info_view.add("SAK:");
+            content_tag_info_view.add("number of records:");
         }
         else {
             try {
@@ -135,20 +136,29 @@ public class main_activity extends Activity {
                 tag0 = reader0.getTag();
 
                 reader0.close();
-                uid_info.setText("UID: " + printByteArray(tag0.getId()));
-                atqa_info.setText("ATQA: " +  printByteArray(reader0.getAtqa()));
-                sak_info.setText("SAK :" + String.format("%02x",reader0.getSak()));
+                uid_info = tag0.getId();
+                atqa_info = reader0.getAtqa();
+                sak_info = reader0.getSak();
                 if (rawMsgs != null){
                     msgs = new NdefMessage[rawMsgs.length];
                     for (int i = 0; i < rawMsgs.length; i++) {
                         msgs[i] = (NdefMessage) rawMsgs[i];
                     }
-                    nbRecord_info.setText("number of records: " + String.format("%d",msgs[0].getRecords().length));
+                    nbRecord_info = msgs[0].getRecords().length;
                 }
+                else nbRecord_info = 0;
+                content_tag_info_view.add("UID: " + printByteArray(uid_info));
+                content_tag_info_view.add("ATQA: " +  printByteArray(atqa_info));
+                content_tag_info_view.add("SAK :" + String.format("%02x",sak_info));
+                content_tag_info_view.add("number of records: " + String.format("%d",nbRecord_info));
 
 
 
             } catch (IOException e) {
+                content_tag_info_view.add("UID: waiting for tag...");
+                content_tag_info_view.add("ATQA:");
+                content_tag_info_view.add("SAK:");
+                content_tag_info_view.add("number of records:");
                 e.printStackTrace();
             }
         }
