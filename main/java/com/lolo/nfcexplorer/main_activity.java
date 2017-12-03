@@ -151,6 +151,10 @@ public class main_activity extends Activity {
                 content_tag_info_view.add("ATQA: " +  printByteArray(atqa_info));
                 content_tag_info_view.add("SAK :" + String.format("%02x",sak_info));
                 content_tag_info_view.add("number of records: " + String.format("%d",nbRecord_info));
+                int i;
+                for(i = 0; i < nbRecord_info; i++){
+                    content_tag_info_view.add("record " + i + ":" + msgs[0].getRecords()[i].toString());
+                }
 
 
 
