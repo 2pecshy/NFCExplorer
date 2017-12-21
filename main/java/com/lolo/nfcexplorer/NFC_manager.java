@@ -1,5 +1,7 @@
 package com.lolo.nfcexplorer;
 
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.nfc.NdefMessage;
@@ -14,41 +16,46 @@ import android.util.Log;
  */
 
 public class NFC_manager {
-    private static NFC_manager instance = null;
+    private static NFC_manager instance = new NFC_manager();
 
     private NfcAdapter Nfc_adapter;
     private Tag lastTag;
     private NfcA reader;
     private NdefMessage ndef_file[];
+    private PendingIntent mPendingIntent;
 
     public static NFC_manager getInstance() {
-
         return instance;
     }
 
-    private NFC_manager(Context context) {
+    private NFC_manager() {
+        Nfc_adapter = null;
+        lastTag = null;
+        reader = null;
+        ndef_file = null;
+        mPendingIntent = null;
+        Log.d("NFCExplorer_debug: ","INIT: NFC manager");
+    }
 
+    /*==============================================================================================
+    ================================================================================================
+    ==============================================================================================*/
+
+    public void onCreate(Context context){
         Nfc_adapter = NfcAdapter.getDefaultAdapter(context);
+
     }
 
-    public static boolean INIT_NFC_manager(Context context){
-
-        if(instance == null){
-            Log.d("NFCExplorer_debug: ","INIT: NFC manager");
-            instance = new NFC_manager(context);
-            return true;
+    public void onPause(Activity activity){
+        if (Nfc_adapter != null) {
+            Nfc_adapter.disableForegroundDispatch(activity);
         }
-        Log.d("NFCExplorer_debug: ","INIT: NFC manager already INIT");
-        return false;
     }
 
-    public static boolean Delete_NFC_manager(){
-
-        if(instance != null) {
-            instance = null;
-            return true;
+    public void onResume(Activity activity, PendingIntent mPendingIntent){
+        if (Nfc_adapter != null) {
+            Nfc_adapter.enableForegroundDispatch(activity, mPendingIntent, null, null);
         }
-        return false;
     }
 
     public boolean resolveIntent(Intent data){
@@ -68,7 +75,10 @@ public class NFC_manager {
             // The reference to the tag that invoked us is passed as a parameter (intent extra EXTRA_TAG)
             lastTag = data.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             rawMsgs = data.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-
+            if(lastTag != null)
+                reader = NfcA.get(lastTag);
+            else
+                reader = null;
             if(rawMsgs != null){
                 ndef_file = new NdefMessage[rawMsgs.length];
                 for (int i = 0; i < rawMsgs.length; i++) {
@@ -80,6 +90,10 @@ public class NFC_manager {
         }
         return false;
     }
+
+    /*==============================================================================================
+    ================================================================================================
+    ==============================================================================================*/
 
     public Tag getLastTag() {
         return lastTag;
