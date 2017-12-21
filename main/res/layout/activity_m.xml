@@ -25,7 +25,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="scan for tag"
+        android:text="show last tag"
         android:id="@+id/button_scan_tag"
         android:layout_gravity="center_horizontal" />
 
