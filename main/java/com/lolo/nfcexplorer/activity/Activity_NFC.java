@@ -1,10 +1,12 @@
-package com.lolo.nfcexplorer;
+package com.lolo.nfcexplorer.activity;
 
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.lolo.nfcexplorer.nfc_service.NFC_manager;
 
 /**
  * Created by lolo on 21/12/17.

@@ -1,4 +1,4 @@
-package com.lolo.nfcexplorer;
+package com.lolo.nfcexplorer.nfc_service;
 
 import android.app.Activity;
 import android.app.PendingIntent;
