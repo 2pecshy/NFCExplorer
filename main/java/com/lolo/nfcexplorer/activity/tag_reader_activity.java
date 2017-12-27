@@ -1,6 +1,7 @@
 package com.lolo.nfcexplorer.activity;
 
 
+import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -8,8 +9,9 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.lolo.nfcexplorer.R;
+import com.lolo.nfcexplorer.nfc_service.CardService;
 
-public class main_activity extends Activity_NFC {
+public class tag_reader_activity extends Activity_NFC {
 
     byte[] uid_info;
     byte[] atqa_info;

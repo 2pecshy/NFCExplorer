@@ -14,20 +14,34 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
-        <activity
-            android:name=".activity.main_activity"
-            android:label="@string/app_name"
+
+        <activity android:name=".activity.main_menu_activity"
+            android:label="@string/main_menu"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.tag_reader_activity"
+            android:label="@string/TagReader"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.nfc.action.TAG_DISCOVERED"/>
                 <action android:name="android.nfc.action.ACTION_NDEF_DISCOVERED"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activity.main_menu_activity" />
         </activity>
+
+        <activity android:name=".activity.tag_emu_activity"
+            android:label="@string/TagEmu"
+            android:launchMode="singleInstance">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activity.main_menu_activity" />
+        </activity>
+
     </application>
 
 </manifest>
