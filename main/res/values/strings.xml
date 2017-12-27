@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">NFCExplorer</string>
+    <string name="main_menu">MainMenu</string>
+    <string name="TagEmu">Tag Emulation</string>
+    <string name="TagReader">Tag Reader</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
