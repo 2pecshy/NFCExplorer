@@ -28,7 +28,7 @@ public class CardService extends HostApduService{
 
     private static final String TAG = "CardService";
     // AID for our loyalty card service.
-    private static final String NDEF_TAG_APPLICATION = "D276000085010100";
+    private static final String NDEF_TAG_APPLICATION = "D276000085010100"; //Appli Type 4 NFC forum
     // ISO-DEP command HEADER for selecting an AID.
     // Format: [Class | Instruction | Parameter 1 | Parameter 2]
     private static final String SELECT_APDU_HEADER = "00A40400";
@@ -37,6 +37,12 @@ public class CardService extends HostApduService{
     // "UNKNOWN" status word sent in response to invalid APDU command (0x0000)
     private static final byte[] UNKNOWN_CMD_SW = HexStringToByteArray("0000");
     private static final byte[] SELECT_APDU = BuildSelectApdu(NDEF_TAG_APPLICATION);
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+        Log.d("CardService","Running CardServices");
+    }
 
     @Override
     public byte[] processCommandApdu(byte[] commandApdu, Bundle extras) {

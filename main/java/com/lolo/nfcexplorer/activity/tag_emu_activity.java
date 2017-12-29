@@ -1,13 +1,13 @@
 package com.lolo.nfcexplorer.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 
 import com.lolo.nfcexplorer.R;
+import com.lolo.nfcexplorer.nfc_service.CardService;
 
 /**
  * Created by lolo on 27/12/17.
@@ -30,6 +30,9 @@ public class tag_emu_activity extends Activity {
         content_tag_info_view.add("Tag Emulation");
 
         tag_info_view.setAdapter(content_tag_info_view);
+
+        Intent serviceIntent = new Intent(this,CardService.class);
+        startService(serviceIntent);
 
     }
 
