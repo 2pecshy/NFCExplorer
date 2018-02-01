@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.lolo.nfcexplorer.R;
 import com.lolo.nfcexplorer.nfc_service.CardService;
@@ -21,6 +22,7 @@ public class tag_reader_activity extends Activity_NFC {
     Button scan_tag_button;
     ListView tag_info_view;
     ArrayAdapter<String> content_tag_info_view;
+    TextView textView1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,7 @@ public class tag_reader_activity extends Activity_NFC {
         scan_tag_button = (Button) findViewById(R.id.button_scan_tag);
         scan_tag_button.setOnClickListener(scan_tag_buttonListener);
         tag_info_view = (ListView) findViewById(R.id.list_info_View);
+        textView1 = (TextView) findViewById(R.id.textview1);
 
         content_tag_info_view = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item);
 
@@ -39,6 +42,8 @@ public class tag_reader_activity extends Activity_NFC {
         content_tag_info_view.add("number of records:");
 
         tag_info_view.setAdapter(content_tag_info_view);
+
+        nfc_manager.setTv(textView1);
 
     }
 
