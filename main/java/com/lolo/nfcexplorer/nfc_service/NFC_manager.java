@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -119,7 +120,7 @@ public class NFC_manager {
     /**
      * Package Key.
      */
-    static String packageKey = "Put your package key obtained from mifare.net";
+    static String packageKey = "d122a80e4131a9e29bb7853345223406";
 
     private NxpNfcLib libInstance = null;
     /**
@@ -225,20 +226,19 @@ public class NFC_manager {
 
     public boolean resolveIntent(Intent data,Activity activity){
 
+        tv.setText("");
         CardType type = CardType.UnknownCard;
         try {
             type = libInstance.getCardType(data);
         } catch (NxpNfcLibException ex) {
             Toast.makeText(activity, ex.getMessage(), Toast.LENGTH_SHORT).show();
         }
-
         switch (type) {
 
             case DESFireEV1:
-
+                showMessage(activity, "======NXP tech detected======", 'n');
                 mCardType = CardType.DESFireEV1;
-                showMessage(activity,"DESFireEV1 Card detected.", 't');
-                showMessage(activity,"Card Detected : DESFireEV1", 'n');
+                showMessage(activity, "Card Detected : DESFireEV1", 'n');
                 desFireEV1 = DESFireFactory.getInstance().getDESFire(libInstance.getCustomModules());
                 try {
 
@@ -248,15 +248,16 @@ public class NFC_manager {
 
                 } catch (Throwable t) {
                     t.printStackTrace();
-                    showMessage(activity,"Unknown Error Tap Again!", 't');
+                    showMessage(activity, "Unknown Error Tap Again!", 't');
                 }
                 break;
 
             case DESFireEV2:
+                showMessage(activity, "======NXP tech detected======", 'n');
                 mCardType = CardType.DESFireEV2;
-                showMessage(activity,"DESFireEV2 Card detected.", 't');
-                tv.setText(" ");
-                showMessage(activity,"Card Detected : DESFireEV2", 'n');
+                showMessage(activity, "DESFireEV2 Card detected.", 't');
+
+                showMessage(activity, "Card Detected : DESFireEV2", 'n');
                 desFireEV2 = DESFireFactory.getInstance().getDESFireEV2(libInstance.getCustomModules());
                 try {
                     desFireEV2.getReader().connect();
@@ -264,42 +265,38 @@ public class NFC_manager {
 
                 } catch (Throwable t) {
                     t.printStackTrace();
-                    showMessage(activity,"Unknown Error Tap Again!", 't');
+                    showMessage(activity, "Unknown Error Tap Again!", 't');
                 }
                 break;
-
-                default:
-                    Parcelable[] rawMsgs;
-                    String action = data.getAction();
-                    Log.d("NFCExplorer_debug: ","===========resolveIntent===========");
-
-                    // Intent is a tag technology (we are sensitive to Ndef, NdefFormatable) or
-                    // an NDEF message (we are sensitive to URI records with the URI http://www.mroland.at/)
-
-                    if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
-                            || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
-                            || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
-
-                        Log.d("NFCExplorer_debug: ","===========getTagInfo===========");
-                        // The reference to the tag that invoked us is passed as a parameter (intent extra EXTRA_TAG)
-                        lastTag = data.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                        rawMsgs = data.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-
-                        if(lastTag != null)
-                            reader = NfcA.get(lastTag);
-                        else
-                            reader = null;
-                        if(rawMsgs != null){
-                            ndef_file = new NdefMessage[rawMsgs.length];
-                            for (int i = 0; i < rawMsgs.length; i++) {
-                                ndef_file[i] = (NdefMessage) rawMsgs[i];
-                            }
-                        }
-                        return true;
-                    }
-                    break;
         }
-        return false;
+        Parcelable[] rawMsgs;
+        String action = data.getAction();
+        Log.d("NFCExplorer_debug: ","===========resolveIntent===========");
+
+        // Intent is a tag technology (we are sensitive to Ndef, NdefFormatable) or
+        // an NDEF message (we are sensitive to URI records with the URI http://www.mroland.at/)
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
+                || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
+                || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+
+            Log.d("NFCExplorer_debug: ","===========getTagInfo===========");
+            // The reference to the tag that invoked us is passed as a parameter (intent extra EXTRA_TAG)
+            lastTag = data.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            rawMsgs = data.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+
+            if(lastTag != null)
+                reader = NfcA.get(lastTag);
+            else
+                reader = null;
+            if(rawMsgs != null){
+                ndef_file = new NdefMessage[rawMsgs.length];
+                for (int i = 0; i < rawMsgs.length; i++) {
+                    ndef_file[i] = (NdefMessage) rawMsgs[i];
+                }
+            }
+            return true;
+        }
+        return true;
     }
 
     /*==============================================================================================
@@ -334,8 +331,8 @@ public class NFC_manager {
                 0x11};
         int timeOut = 2000;
         int fileNo = 0;
+        DESFireFile.FileSettings fileInfo = null;
 
-        tv.setText(" ");
         showMessage(activity,"Card Detected : " + desFireEV1.getType().getTagName(), 'n');
 
         try {
@@ -343,14 +340,44 @@ public class NFC_manager {
             showMessage(activity,
                     "Version of the Card : "
                             + Utilities.dumpBytes(desFireEV1.getVersion()),
-                    'd');
+                    'n');
             showMessage(activity,
                     "Existing Applications Ids : " + Arrays.toString(desFireEV1.getApplicationIDs()),
-                    'd');
+                    'n');
 
             desFireEV1.selectApplication(0);
+            int[] aids_list = desFireEV1.getApplicationIDs();
+            if(aids_list.length > 0){
+                for(int j = 0; j < aids_list.length; j++) {
+                    desFireEV1.selectApplication(aids_list[j]);
+                    showMessage(activity, "---------------------", 'n');
+                    showMessage(activity, "AID: " + aids_list[j], 'n');
+                    showMessage(activity, "Number of file: " + desFireEV1.getFileIDs().length, 'n');
+                    byte[] files_list = desFireEV1.getFileIDs();
+                    for (int i = 0; i < files_list.length; i++) {
 
-            desFireEV1.authenticate(0, IDESFireEV1.AuthType.Native, KeyType.THREEDES, objKEY_2KTDES);
+                        fileInfo = desFireEV1.getFileSettings(files_list[i]);
+                        if(fileInfo instanceof DESFireFile.StdDataFileSettings) {
+                            showMessage(activity, " file : " + files_list[i] + ": StandardData File" , 'n');
+                            byte[] file_size = desFireEV1.readData(files_list[i], 0, 2);
+                            int size = file_size[0] * 0x100 + file_size[1];
+                            byte[] readeFile = desFireEV1.readData(files_list[i], 0, size);
+                            String toPrint = "";
+                            for (int k = 0; k < readeFile.length; k++) {
+                                toPrint += " " + String.format("%02x", readeFile[k]);
+                            }
+                            showMessage(activity, "data = " + toPrint, 'n');
+                        }
+                        else if(fileInfo instanceof DESFireFile.LinearRecordFileSettings) {
+                            showMessage(activity, " file : " + files_list[i] + ": LinearRecord File" , 'n');
+                        }
+                        else
+                            showMessage(activity, " file : " + files_list[i] + ": unsupported File" , 'n');
+                    }
+                }
+                showMessage(activity, "---------------------", 'n');
+            }
+            //desFireEV1.authenticate(0, IDESFireEV1.AuthType.Native, KeyType.THREEDES, objKEY_2KTDES);
 
             desFireEV1.getReader().close();
 
@@ -376,7 +403,6 @@ public class NFC_manager {
         int timeOut = 2000;
         int fileNo = 0;
 
-        tv.setText(" ");
         showMessage(activity,"Card Detected : " + desFireEV2.getType().getTagName(), 'n');
 
         try {
@@ -414,7 +440,7 @@ public class NFC_manager {
      * @param where 't' for Toast; 'l' for Logcat; 'd' for Display in UI; 'n' for
      *              logcat and textview 'a' for All
      */
-    protected void showMessage(Activity activity,final String str, final char where) {
+    public void showMessage(Activity activity,final String str, final char where) {
 
         switch (where) {
 
@@ -426,20 +452,17 @@ public class NFC_manager {
                 NxpLogUtils.i(TAG, "\n" + str);
                 break;
             case 'd':
-                tv.setText(tv.getText() + "\n-----------------------------------\n"
-                        + str);
+                tv.setText(tv.getText() + "\n-----------------------------------\n");
                 break;
             case 'a':
                 Toast.makeText(activity, "\n" + str, Toast.LENGTH_SHORT)
                         .show();
                 NxpLogUtils.i(TAG, "\n" + str);
-                tv.setText(tv.getText() + "\n-----------------------------------\n"
-                        + str);
+                tv.setText(tv.getText() + str);
                 break;
             case 'n':
                 NxpLogUtils.i(TAG, "Dump Data: " + str);
-                tv.setText(tv.getText() + "\n-----------------------------------\n"
-                        + str);
+                tv.setText(tv.getText() + "\n" + str);
                 break;
             default:
                 break;
