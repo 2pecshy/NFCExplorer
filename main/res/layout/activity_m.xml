@@ -16,6 +16,8 @@
         android:id="@+id/text_tag_info1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:maxLines = "5000"
+        android:scrollbars = "vertical"
         android:text="TextView" />
 
 

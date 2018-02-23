@@ -296,7 +296,7 @@ public class NFC_manager {
             }
             return true;
         }
-        return true;
+        return false;
     }
 
     /*==============================================================================================
@@ -333,14 +333,13 @@ public class NFC_manager {
         int fileNo = 0;
         DESFireFile.FileSettings fileInfo = null;
 
-        showMessage(activity,"Card Detected : " + desFireEV1.getType().getTagName(), 'n');
-
         try {
             desFireEV1.getReader().setTimeout(timeOut);
             showMessage(activity,
                     "Version of the Card : "
                             + Utilities.dumpBytes(desFireEV1.getVersion()),
                     'n');
+            showMessage(activity,"free memory: " + desFireEV1.getFreeMemory(),'n');
             showMessage(activity,
                     "Existing Applications Ids : " + Arrays.toString(desFireEV1.getApplicationIDs()),
                     'n');
@@ -350,7 +349,7 @@ public class NFC_manager {
             if(aids_list.length > 0){
                 for(int j = 0; j < aids_list.length; j++) {
                     desFireEV1.selectApplication(aids_list[j]);
-                    showMessage(activity, "---------------------", 'n');
+                    showMessage(activity, "==============================", 'n');
                     showMessage(activity, "AID: " + aids_list[j], 'n');
                     showMessage(activity, "Number of file: " + desFireEV1.getFileIDs().length, 'n');
                     byte[] files_list = desFireEV1.getFileIDs();
@@ -358,21 +357,35 @@ public class NFC_manager {
 
                         fileInfo = desFireEV1.getFileSettings(files_list[i]);
                         if(fileInfo instanceof DESFireFile.StdDataFileSettings) {
-                            showMessage(activity, " file : " + files_list[i] + ": StandardData File" , 'n');
-                            byte[] file_size = desFireEV1.readData(files_list[i], 0, 2);
-                            int size = file_size[0] * 0x100 + file_size[1];
-                            byte[] readeFile = desFireEV1.readData(files_list[i], 0, size);
-                            String toPrint = "";
-                            for (int k = 0; k < readeFile.length; k++) {
-                                toPrint += " " + String.format("%02x", readeFile[k]);
-                            }
+                            showMessage(activity, " file : " + files_list[i] + ": StandardData File", 'n');
+                            //byte[] file_size = desFireEV1.readData(files_list[i], 0, 2);
+                            //int size = file_size[0] * 0x100 + file_size[1];
+                            byte[] readeFile = desFireEV1.readData(files_list[i], 0, 0);
+                            showMessage(activity,"file size=" + readeFile.length,'n');
+                            String toPrint = printByteArray(readeFile);
                             showMessage(activity, "data = " + toPrint, 'n');
                         }
                         else if(fileInfo instanceof DESFireFile.LinearRecordFileSettings) {
-                            showMessage(activity, " file : " + files_list[i] + ": LinearRecord File" , 'n');
+                            showMessage(activity, " file : " + files_list[i] + ": LinearRecord File, size= " +
+                                    ((DESFireFile.LinearRecordFileSettings) fileInfo).mRecordSize + "Bytes", 'n');
+                        }
+                        else if(fileInfo instanceof DESFireFile.CyclicRecordFileSettings) {
+                            showMessage(activity, " file : " + files_list[i] + ": CyclicRecord File, size= " +
+                                    ((DESFireFile.CyclicRecordFileSettings) fileInfo).mRecordSize + "Bytes", 'n');
+                        }
+                        else if(fileInfo instanceof DESFireFile.BackupDataFileSettings) {
+                            showMessage(activity, " file : " + files_list[i] + ": BackupData File", 'n');
+                        }
+                        else if(fileInfo instanceof DESFireFile.ValueFileSettings) {
+                            showMessage(activity, " file : " + files_list[i] + ": Value File\nlowerLimit:" +
+                                    ((DESFireFile.ValueFileSettings) fileInfo).mLowerLimit +
+                                   "\nupperLimit" + ((DESFireFile.ValueFileSettings) fileInfo).mUpperLimit, 'n');
+                            int readeFile = desFireEV1.getValue(files_list[i]);
+                            showMessage(activity, "value= " + readeFile, 'n');
                         }
                         else
                             showMessage(activity, " file : " + files_list[i] + ": unsupported File" , 'n');
+                        showMessage(activity, "---------------------", 'n');
                     }
                 }
                 showMessage(activity, "---------------------", 'n');
@@ -468,5 +481,14 @@ public class NFC_manager {
                 break;
         }
         return;
+    }
+
+    private String printByteArray(byte[] uid){
+
+        if(uid == null) return "";
+        StringBuilder res = new StringBuilder();
+        for(int i = 0; i < uid.length; i++)
+            res.append( String.format("%02x",uid[i]));
+        return res.toString();
     }
 }
